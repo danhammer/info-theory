@@ -1,9 +1,6 @@
 (ns info-theory.core
-  (:use [midje sweet])
   (:require [incanter.core :as i]
-            [incanter.charts :as c]
-            [incanter.stats :as s]        
-            [incanter.optimize :as optimize]))
+            [incanter.stats :as s]))
 
 (defn- ordinal-idx
   "Returns a sequence of indices that rank the values of the supplied
@@ -19,14 +16,14 @@
     (map first
          (sort-by second indexed-vector))))
 
-(defn- permutation-count
+(defn permutation-count
   "Returns a map of the ordinal sequences of length `D` and their
   count; note that the offset is fixed at 1"
   [D ts]
   (let [subs (partition D 1 ts)]
     (frequencies (map ordinal-idx subs))))
 
-(defn- dgp
+(defn dgp
   "Simple data generating process for a random series-like varirable
   with length T, mean 5, and error distributed standard normal."
   [T]
