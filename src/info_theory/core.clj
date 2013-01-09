@@ -27,30 +27,44 @@
     (frequencies (map ordinal-idx subs))))
 
 (defn- dgp
+  "Simple data generating process for a random series-like varirable
+  with length T, mean 5, and error distributed standard normal."
   [T]
   (let [e (s/sample-normal T)]
     (map (partial + 5) e)))
 
-(defn demean [coll]
+(defn demean
+  "returns a collection with the mean value subtracted"
+  [coll]
   (let [mu (s/mean coll)]
     (map #(- % mu) coll)))
 
 (defn key-counts
+  "returns two vectors of values, appropriately aligned, from the
+  supplied hash maps.  This allows for non-standard keys, like
+  sequences."
   [m1 m2]
   (apply map vector
          (map val (merge-with vector m1 m2))))
 
 (defn empirical-dist
+  "returns the results from applying the empirical distribution
+  function to a pre-sorted collection"
   [coll]
   (let [n (float (reduce + coll))]
     (map #(/ % n)
          (reductions + coll))))
 
 (defn ks-stat
+  "returns the Kolmogorov–Smirnov test statistics from two properly
+  aligned distributions of identical length."
   [emp-dist ref-dist]
   (reduce max (map - emp-dist ref-dist)))
 
 (defn demean-test
+  "Returns the K-S test statistic associated with the comparison of
+  the permutation entropy distributions associated with a time series
+  of length T and the supplied D length."
   [D T]
   (let [y (dgp T)
         m-ref (permutation-count D y)
