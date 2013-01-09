@@ -59,7 +59,8 @@
   "returns the Kolmogorov–Smirnov test statistics from two properly
   aligned distributions of identical length."
   [emp-dist ref-dist]
-  (reduce max (map - emp-dist ref-dist)))
+  (reduce max
+          (map (comp i/abs -) emp-dist ref-dist)))
 
 (defn demean-test
   "Returns the K-S test statistic associated with the comparison of
