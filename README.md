@@ -85,11 +85,11 @@ residuals as the base distributions.
 
 We can run the same Kolomogorov-Smirnov repeatedly, collecting the
 test statistic and plotting the histogram for each run.  The test
-statistic is distributed Chi-squared, and well within the bounds of
+statistic is distributed Kolomogorov, and well within the bounds of
 standard variation.  We cannot reject the hypothesis that the two
 distibutions are the same.  There is no dynamic pattern in the
 unexplained variation that cannot be explained by the linear
-regression --- which makes sense, since we constructed it to be so.
+regression - which makes sense, since we constructed it to be so.
 
 ```clojure
 (defn hist-diffstat
