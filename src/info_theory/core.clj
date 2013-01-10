@@ -1,6 +1,7 @@
 (ns info-theory.core
   (:require [incanter.core :as i]
-            [incanter.stats :as s]))
+            [incanter.stats :as s]
+            [incanter.charts :as c]))
 
 (defn- ordinal-idx
   "Returns a sequence of indices that rank the values of the supplied
@@ -23,12 +24,16 @@
   (let [subs (partition D 1 ts)]
     (frequencies (map ordinal-idx subs))))
 
-(defn dgp
-  "Simple data generating process for a random series-like varirable
+(defn mean-dgp
+  "Simple data generating process for a random series-like variable
   with length T, mean 5, and error distributed standard normal."
   [T]
   (let [e (s/sample-normal T)]
     (map (partial + 5) e)))
+
+(defn linear-dgp [T x]
+  (let [e (s/sample-normal T)]
+    (map (partial + 5) x e)))
 
 (defn demean
   "returns a collection with the mean value subtracted"
@@ -59,16 +64,49 @@
   (reduce max
           (map (comp i/abs -) emp-dist ref-dist)))
 
-(defn demean-test
-  "Returns the K-S test statistic associated with the comparison of
-  the permutation entropy distributions associated with a time series
-  of length T and the supplied D length."
-  [D T]
-  (let [y (dgp T)
-        m-ref (permutation-count D y)
-        m-emp (permutation-count D (demean y))]
+(defn retrieve-diff
+  "accepts the length of the permutation series, and the errors from
+  the reference and new series; returns the the K-S test statistic
+  associated with the comparison of the permutation entropy
+  distributions associated with a time series of length T and the
+  supplied D length."
+  [D e-ref e-new]
+  {:pre [= (count e-ref) (count e-new)]}
+  (let [m-ref (permutation-count D e-ref)
+        m-new (permutation-count D e-new)]
     (apply ks-stat
-           (map empirical-dist (key-counts m-emp m-ref)))))
+           (map empirical-dist (key-counts m-new m-ref)))))
+
+(defn demean-illustration
+  "compares the residuals from a series and the demeaned series"
+  [D T]
+  (let [y (mean-dgp T)]
+    (retrieve-diff D y (demean y))))
+
+(defn linear-residuals
+  "returns an incanter vector of residuals from a linear model; cribbed from
+  incanter.stats linear model."
+  [y x & {:keys [intercept] :or {intercept true}}]
+  (let [_x (if intercept (i/bind-columns (replicate (i/nrow x) 1) x) x)
+        xt (i/trans _x)
+        xtx (i/mmult xt _x)
+        coefs (i/mmult (i/solve xtx) xt y)]
+    (i/minus y (i/mmult _x coefs))))
+
+(defn linear-illustration
+  "compares the linear DGP with the residuals from a linear model"
+  [D T]
+  (let [x (s/sample-normal T :mean 3)
+        y (linear-dgp T x)]
+    (retrieve-diff D y (linear-residuals y x))))
+
+(defn hist-diffstat
+  "returns a histogram of the ks-stat for a MC-simulation, iterated B
+  times."
+  [B f D T]
+  (let [dgp-fn (fn [x] (f D T))]
+    (c/histogram (pmap dgp-fn (range B))
+                 :nbins 20)))
 
 (defn- log-fn [x]
   (* x (i/log2 x)))
