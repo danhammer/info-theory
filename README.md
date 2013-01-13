@@ -103,6 +103,23 @@ regression - which makes sense, since we constructed it to be so.
 
 ![](https://dl.dropbox.com/u/5365589/linear-hist.png)
 
+## Instrumental Variables
+
+Now, we use the data generating process that is described in [my
+section notes](https://dl.dropbox.com/u/5365589/twitter/sec-10.pdf)
+for the Berkeley applied econometrics sequence.  We can get the same
+histograms, as above, for the IV model _and_ the standard linear
+model, which has biased estimates.  We see that the permutation
+entropy approach does not differentiate between the two models.
+
+**LINEAR MODEL**
+
+![](https://dl.dropbox.com/u/5365589/linear-iv-hist.png)
+
+**IV MODEL**
+
+![](https://dl.dropbox.com/u/5365589/iv-hist.png)
+
 ## License
 
 Copyright © 2013 FIXME
