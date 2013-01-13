@@ -67,7 +67,7 @@
         y (dependent-var X)
         e (if (true? two-stage)
             (:residuals (iv-res y X))
-            (:residuals (s/linear-model y (i/sel X :cols [0 1 2]))))]
+            (:residuals (s/linear-model y (i/sel X :cols [0 1]))))]
     (retrieve-diff D y e)))
 
 (defn simulate-diff
