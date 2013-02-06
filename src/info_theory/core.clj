@@ -1,7 +1,8 @@
 (ns info-theory.core
   (:require [incanter.core :as i]
             [incanter.stats :as s]
-            [incanter.charts :as c]))
+            [incanter.charts :as c]
+            [clojure-csv.core :as csv]))
 
 (defn- ordinal-idx
   "Returns a sequence of indices that rank the values of the supplied

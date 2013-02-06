@@ -30,6 +30,20 @@
         m (take k (repeatedly #(s/sample-normal N)))]
     (i/mmult (i/trans (i/bind-columns m)) Q)))
 
+(defn trending-var
+  [N]
+  (let [e (s/sample-normal N)]
+    (map + (map i/sqrt (range N)) e)))
+
+(defn covariate-process
+  [N & {:keys [vcov-mat] :or {vcov-mat (vcov-fn)}}]
+  (let [Q (i/decomp-cholesky vcov-mat)
+        k (second (i/dim Q))
+        m (concat (repeat 2 (s/sample-normal N))
+                  [(trending-var N)]
+                  (repeat 2 (s/sample-normal N)))]
+    (i/mmult (i/trans (i/bind-columns m)) Q)))
+
 (defn prebind-ones
   "accepts an (N x k) matrix, returns a (N x (k + 1)) matrix with the
   first a first column of ones"
@@ -62,8 +76,10 @@
   squares or just the (biased) linear model.  The supplied arguments
   indicate the number of observations N and the window length for
   permutation entropy."
-  [N D & {:keys [two-stage] :or {two-stage true}}]
-  (let [X (rmvn-chol N)
+  [N D & {:keys [two-stage trend] :or {two-stage true trend false}}]
+  (let [X (if (true? trend)
+            (covariate-process N)
+            (rmvn-chol N))
         y (dependent-var X)
         e (if (true? two-stage)
             (:residuals (iv-res y X))
@@ -73,6 +89,8 @@
 (defn simulate-diff
   "collect the KS statistics for B iterations, N observations, D
   window length."
-  [B N D & {:keys [two-stage] :or {two-stage true}}]
-  (let [iter-fn (fn [] (iv-permuation N D :two-stage two-stage))]
+  [B N D & {:keys [two-stage trend] :or {two-stage true trend false}}]
+  (let [iter-fn (fn [] (iv-permuation N D :two-stage two-stage :trend trend))]
     (take B (repeatedly #(iter-fn)))))
+
+
