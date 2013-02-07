@@ -1,5 +1,6 @@
 (ns info-theory.transfer
   (:use [clojure.contrib.generic.functor :only (fmap)]
+        [clojure.contrib.math :only (ceil)]
         info-theory.core)
   (:require [incanter.core :as i]
             [incanter.stats :as s]
@@ -42,16 +43,22 @@
 
 (defn info-map
   "returns the aggregate information transfer from y to x over the
-  course of the target sequence x"
-  [x y]
-  (let [a (prop-vec (rest x) x y)
+  course of the target sequence x; s is the forward-looking step."
+  [s x y]
+  (let [a (prop-vec (drop s x) x y)
         b (prop-vec x y)
-        c (prop-vec (rest x) x)
+        c (prop-vec (drop s x) x)
         d (prop-vec x)]
     (reduce +
             (map (partial info-calc a b c d)
-                 (apply map vector [(rest x) x y])))))
+                 (apply map vector [(drop s x) x y])))))
 
-
-
+(defn bin-vector
+  "accepts a collection and a number of bins. returns the bin number
+  associated with each element."
+  [nbin coll]
+  (let [num (ceil (/ (count coll) nbin))
+        m (map set (partition-all num (sort coll)))]
+    (for [x coll]
+      (.indexOf (map #(contains? % x) m) true))))
 
