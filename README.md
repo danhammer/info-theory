@@ -116,12 +116,4 @@ entropy approach does not differentiate between the two models.
 
 ![](https://dl.dropbox.com/u/5365589/linear-iv-hist.png)
 
-**IV MODEL**
-
-![](https://dl.dropbox.com/u/5365589/iv-hist.png)
-
-## License
-
-Copyright © 2013 FIXME
-
 Distributed under the Eclipse Public License, the same as Clojure.
